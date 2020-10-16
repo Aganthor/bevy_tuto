@@ -22,7 +22,7 @@ pub enum TileType {
     Snow,
     Mountain,
 }
-
+//#[derive(Copy, Clone)]
 pub struct TileData {
     pub tile_data: HashMap<TileType, String>,
 }
@@ -256,9 +256,9 @@ impl Map {
 
 pub fn draw_map(
     commands: &mut Commands,
-    map: &Res<Map>,
+    map: Res<Map>,
     tile_data: Res<TileData>,
-    asset_server: &Res<AssetServer>,
+    asset_server: Res<AssetServer>,
     materials: &mut ResMut<Assets<ColorMaterial>>
 ) {
     for y in 0..10 as usize {
@@ -269,8 +269,7 @@ pub fn draw_map(
                 y as f32 * TILE_SIZE as f32,
                 5.0
             ));
-            let path = Path::new(&tile_data.get_path(tile_info.tile_type));
-            let handle = asset_server.get_handle(path).unwrap();
+            let handle: Handle<Texture> = asset_server.get_handle(tile_data.get_path(tile_info.tile_type)).unwrap();
         }
     }
 }
