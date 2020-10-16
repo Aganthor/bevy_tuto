@@ -4,6 +4,8 @@ use simdnoise::*;
 use rand::Rng;
 use std::collections::HashMap;
 
+use std::path::Path;
+
 pub const TILE_SIZE: u32 = 32;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
@@ -21,33 +23,33 @@ pub enum TileType {
     Mountain,
 }
 
-pub struct TileData<'a> {
-    pub tile_data: HashMap<TileType, &'a str>,
+pub struct TileData {
+    pub tile_data: HashMap<TileType, String>,
 }
 
-impl<'a> Default for TileData<'a> {
+impl Default for TileData {
     fn default() -> Self {
-        let mut tile_data_map: HashMap<TileType, &str> = HashMap::new();
-        tile_data_map.insert(TileType::DeepWater, "assets/map_tiles/deep_water.png");
-        tile_data_map.insert(TileType::Dirt, "assets/map_tiles/dirt.png");
-        tile_data_map.insert(TileType::Grass,"assets/map_tiles/grass.png");
-        tile_data_map.insert(TileType::Forest, "assets/map_tiles/forest.png");
-        tile_data_map.insert(TileType::Rock, "assets/map_tiles/rock.png");
-        tile_data_map.insert(TileType::Sand, "assets/map_tiles/sand.png");
-        tile_data_map.insert(TileType::Savannah, "assets/map_tiles/savannah.png");
-        tile_data_map.insert(TileType::ShallowWater, "assets/map_tiles/shallow_water.png");
-        tile_data_map.insert(TileType::Shore,"assets/map_tiles/shore.png" );
-        tile_data_map.insert(TileType::Snow, "assets/map_tiles/snow.png");
-        tile_data_map.insert(TileType::Mountain, "assets/map_tiles/mountain.png");
+        let mut tile_data_map: HashMap<TileType, String> = HashMap::new();
+        tile_data_map.insert(TileType::DeepWater, "assets/map_tiles/deep_water.png".to_string());
+        tile_data_map.insert(TileType::Dirt, "assets/map_tiles/dirt.png".to_string());
+        tile_data_map.insert(TileType::Grass,"assets/map_tiles/grass.png".to_string());
+        tile_data_map.insert(TileType::Forest, "assets/map_tiles/forest.png".to_string());
+        tile_data_map.insert(TileType::Rock, "assets/map_tiles/rock.png".to_string());
+        tile_data_map.insert(TileType::Sand, "assets/map_tiles/sand.png".to_string());
+        tile_data_map.insert(TileType::Savannah, "assets/map_tiles/savannah.png".to_string());
+        tile_data_map.insert(TileType::ShallowWater, "assets/map_tiles/shallow_water.png".to_string());
+        tile_data_map.insert(TileType::Shore,"assets/map_tiles/shore.png".to_string());
+        tile_data_map.insert(TileType::Snow, "assets/map_tiles/snow.png".to_string());
+        tile_data_map.insert(TileType::Mountain, "assets/map_tiles/mountain.png".to_string());
         TileData {
             tile_data: tile_data_map,
         }
     }
 }
 
-impl<'a> TileData<'a> {
-    fn get_path(self, tile_type: TileType) -> &'a str {
-        self.tile_data[&tile_type]
+impl TileData {
+    fn get_path(self, tile_type: TileType) -> String {
+        self.tile_data[&tile_type].clone()
     }
 }
 
@@ -255,7 +257,7 @@ impl Map {
 pub fn draw_map<'a>(
     commands: &mut Commands,
     map: &Res<Map>,
-    tile_data: &Res<TileData>,
+    tile_data: Res<TileData>,
     asset_server: &Res<AssetServer>,
     materials: &mut ResMut<Assets<ColorMaterial>>
 ) {
@@ -267,7 +269,8 @@ pub fn draw_map<'a>(
                 y as f32 * TILE_SIZE as f32,
                 5.0
             ));
-            //let handle = asset_server.get_handle(TileType::from(tile_info.tile_type));
+            let path = Path::new(&tile_data.get_path(tile_info.tile_type));
+            let handle = asset_server.get_handle(path).unwrap();
         }
     }
 }
