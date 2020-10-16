@@ -254,7 +254,7 @@ impl Map {
     }
 }
 
-pub fn draw_map<'a>(
+pub fn draw_map(
     commands: &mut Commands,
     map: &Res<Map>,
     tile_data: Res<TileData>,
