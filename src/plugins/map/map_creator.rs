@@ -4,8 +4,6 @@ use simdnoise::*;
 use rand::Rng;
 use std::collections::HashMap;
 
-use std::path::Path;
-
 pub const TILE_SIZE: u32 = 32;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
@@ -48,7 +46,7 @@ impl Default for TileData {
 }
 
 impl TileData {
-    fn get_path(self, tile_type: TileType) -> String {
+    fn get_path(&self, tile_type: TileType) -> String {
         self.tile_data[&tile_type].clone()
     }
 }
@@ -129,18 +127,13 @@ impl MapBuilder {
     }
 
     pub fn build(&self) -> Map {
-        let mut map_data: Vec<f32> = Vec::new();
-        map_data.resize(self.map_size * self.map_size, 0.0);
         Map {
             noise_vector: Vec::new(),
-            map_data: map_data,
             noise_seed: self.seed,
             noise_frequency: self.frequency,
             noise_lacunarity: self.lacunarity,
             noise_gain: self.gain,
             noise_octaves: self.octaves,
-            noise_scale: 1.0,
-            noise_persistance: 0.5,
             map_size: self.map_size,
             level_data: Vec::new(),
         }
@@ -149,14 +142,11 @@ impl MapBuilder {
 
 pub struct Map {
     noise_vector: Vec<f32>,
-    map_data: Vec<f32>,
     noise_seed: i32,
     noise_frequency: f32,
     noise_lacunarity: f32,
     noise_gain: f32,
     noise_octaves: u8,
-    noise_scale: f32,
-    noise_persistance: f32,
     pub map_size: usize,
     level_data: Vec<TileInfo>,
 }
@@ -169,13 +159,13 @@ impl Default for Map {
         println!("Map seed is {}.", seed);
 
         let mut map = MapBuilder::new()
-        .with_seed(seed)
-        .with_frequency(0.03)
-        .with_gain(2.5)
-        .with_lacunarity(0.55)
-        .with_octaves(2)
-        .with_size(10)
-        .build();
+            .with_seed(seed)
+            .with_frequency(0.03)
+            .with_gain(2.5)
+            .with_lacunarity(0.55)
+            .with_octaves(2)
+            .with_size(10)
+            .build();
 
         map.generate_noise_map();
         map.generate_level();
@@ -194,11 +184,11 @@ impl Map {
             .with_octaves(self.noise_octaves)
             .generate_scaled(0.0, 1.0);
     }
-
+/*
     pub fn map_max_size(&self) -> f32 {
         self.map_size as f32 * TILE_SIZE as f32
     }
-
+*/
     pub fn generate_level(&mut self) {
         for y in 0..self.map_size {
             for x in 0..self.map_size {
@@ -254,12 +244,12 @@ impl Map {
     }
 }
 
-pub fn draw_map(
+pub fn create_map(
     commands: &mut Commands,
-    map: Res<Map>,
-    tile_data: Res<TileData>,
-    asset_server: Res<AssetServer>,
-    materials: &mut ResMut<Assets<ColorMaterial>>
+    map: &Res<Map>,
+    tile_data: &Res<TileData>,
+    asset_server: &Res<AssetServer>,
+    texture_atlas: &mut TextureAtlas,
 ) {
     for y in 0..10 as usize {
         for x in 0..10 as usize {
@@ -270,6 +260,15 @@ pub fn draw_map(
                 5.0
             ));
             let handle: Handle<Texture> = asset_server.get_handle(tile_data.get_path(tile_info.tile_type)).unwrap();
+            let index = texture_atlas.get_texture_index(handle).unwrap();
+
+            commands
+                .spawn(Camera2dComponents::default())
+                .spawn(SpriteSheetComponents {
+                    transform: transform,
+                    sprite: TextureAtlasSprite::new(index as u32),
+                    ..Default::default()
+                });
         }
     }
 }
