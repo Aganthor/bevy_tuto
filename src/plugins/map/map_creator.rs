@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bmp::Image;
-use simdnoise::*;
 use rand::Rng;
+use simdnoise::*;
 use std::collections::HashMap;
 
 pub const TILE_SIZE: u32 = 32;
@@ -28,17 +28,29 @@ pub struct TileData {
 impl Default for TileData {
     fn default() -> Self {
         let mut tile_data_map: HashMap<TileType, String> = HashMap::new();
-        tile_data_map.insert(TileType::DeepWater, "assets/map_tiles/deep_water.png".to_string());
+        tile_data_map.insert(
+            TileType::DeepWater,
+            "assets/map_tiles/deep_water.png".to_string(),
+        );
         tile_data_map.insert(TileType::Dirt, "assets/map_tiles/dirt.png".to_string());
-        tile_data_map.insert(TileType::Grass,"assets/map_tiles/grass.png".to_string());
+        tile_data_map.insert(TileType::Grass, "assets/map_tiles/grass.png".to_string());
         tile_data_map.insert(TileType::Forest, "assets/map_tiles/forest.png".to_string());
         tile_data_map.insert(TileType::Rock, "assets/map_tiles/rock.png".to_string());
         tile_data_map.insert(TileType::Sand, "assets/map_tiles/sand.png".to_string());
-        tile_data_map.insert(TileType::Savannah, "assets/map_tiles/savannah.png".to_string());
-        tile_data_map.insert(TileType::ShallowWater, "assets/map_tiles/shallow_water.png".to_string());
-        tile_data_map.insert(TileType::Shore,"assets/map_tiles/shore.png".to_string());
+        tile_data_map.insert(
+            TileType::Savannah,
+            "assets/map_tiles/savannah.png".to_string(),
+        );
+        tile_data_map.insert(
+            TileType::ShallowWater,
+            "assets/map_tiles/shallow_water.png".to_string(),
+        );
+        tile_data_map.insert(TileType::Shore, "assets/map_tiles/shore.png".to_string());
         tile_data_map.insert(TileType::Snow, "assets/map_tiles/snow.png".to_string());
-        tile_data_map.insert(TileType::Mountain, "assets/map_tiles/mountain.png".to_string());
+        tile_data_map.insert(
+            TileType::Mountain,
+            "assets/map_tiles/mountain.png".to_string(),
+        );
         TileData {
             tile_data: tile_data_map,
         }
@@ -51,7 +63,6 @@ impl TileData {
     }
 }
 
-
 #[derive(Debug, Copy, Clone)]
 pub struct TileInfo {
     pub x: usize,
@@ -63,14 +74,26 @@ pub struct TileInfo {
 }
 
 impl TileInfo {
-    pub fn new(x: usize, y: usize, tile_type: TileType, is_walkable: bool) -> TileInfo {
+    pub fn new(x: usize, y: usize, tile_type: TileType) -> TileInfo {
         TileInfo {
             x: x,
             y: y,
             tile_type: tile_type,
             explored: false,
             block_view: false,
-            walkable: is_walkable,
+            walkable: match tile_type {
+                TileType::DeepWater
+                | TileType::Rock
+                | TileType::ShallowWater
+                | TileType::Mountain => false,
+                TileType::Dirt
+                | TileType::Grass
+                | TileType::Forest
+                | TileType::Sand
+                | TileType::Savannah
+                | TileType::Shore
+                | TileType::Snow => true,
+            },
         }
     }
 }
@@ -184,11 +207,11 @@ impl Map {
             .with_octaves(self.noise_octaves)
             .generate_scaled(0.0, 1.0);
     }
-/*
-    pub fn map_max_size(&self) -> f32 {
-        self.map_size as f32 * TILE_SIZE as f32
-    }
-*/
+    /*
+        pub fn map_max_size(&self) -> f32 {
+            self.map_size as f32 * TILE_SIZE as f32
+        }
+    */
     pub fn generate_level(&mut self) {
         for y in 0..self.map_size {
             for x in 0..self.map_size {
@@ -196,28 +219,29 @@ impl Map {
                 let tile_x_pos = x * TILE_SIZE as usize;
                 let tile_y_pos = y * TILE_SIZE as usize;
                 let tile_type = self.biome(map_value);
-                self.level_data.push(TileInfo::new(tile_x_pos, tile_y_pos, tile_type, false));
+                self.level_data
+                    .push(TileInfo::new(tile_x_pos, tile_y_pos, tile_type));
             }
         }
     }
 
     fn biome(&self, map_elevation: f32) -> TileType {
         if map_elevation < 0.1 {
-            return TileType::DeepWater
+            return TileType::DeepWater;
         } else if map_elevation < 0.2 {
-            return TileType::Shore
+            return TileType::Shore;
         } else if map_elevation < 0.3 {
-            return TileType::Grass
+            return TileType::Grass;
         } else if map_elevation < 0.5 {
-            return TileType::Forest
+            return TileType::Forest;
         } else if map_elevation < 0.8 {
-            return TileType::Savannah
+            return TileType::Savannah;
         } else if map_elevation < 0.9 {
-            return TileType::Sand
+            return TileType::Sand;
         } else if map_elevation < 0.95 {
-            return TileType::Rock
+            return TileType::Rock;
         } else {
-            return TileType::Mountain
+            return TileType::Mountain;
         }
     }
 
@@ -257,13 +281,15 @@ pub fn create_map(
             let transform = Transform::from_translation(Vec3::new(
                 x as f32 * TILE_SIZE as f32,
                 y as f32 * TILE_SIZE as f32,
-                5.0
+                5.0,
             ));
-            let handle: Handle<Texture> = asset_server.get_handle(tile_data.get_path(tile_info.tile_type)).unwrap();
+            let handle: Handle<Texture> = asset_server
+                .get_handle(tile_data.get_path(tile_info.tile_type))
+                .unwrap();
             let index = texture_atlas.get_texture_index(handle).unwrap();
 
             commands
-                .spawn(Camera2dComponents::default())
+                //.spawn(Camera2dComponents::default())
                 .spawn(SpriteSheetComponents {
                     transform: transform,
                     sprite: TextureAtlasSprite::new(index as u32),

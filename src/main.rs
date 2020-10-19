@@ -1,6 +1,4 @@
-use bevy::{
-    prelude::*,
-};
+use bevy::prelude::*;
 
 mod player;
 use player::*;
@@ -25,21 +23,10 @@ fn main() {
         .run();
 }
 
-fn setup (
+fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let texture_handle = asset_server.load("assets/unseen_horror_new.png").unwrap();
-    commands
-        .spawn(Camera2dComponents::default())
-        .spawn(SpriteComponents {
-            material: materials.add(texture_handle.into()),
-            transform: Transform::from_translation(Vec3::new(0.0, -50.0, 1.0)),
-            ..Default::default()
-        })
-        .with(Player {
-            speed: 500.0,
-            direction: player::Direction::Idle,
-         });
+    spawn_player(&mut commands, &asset_server, &mut materials);
 }
