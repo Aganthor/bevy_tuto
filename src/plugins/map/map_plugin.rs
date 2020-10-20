@@ -35,6 +35,7 @@ fn spawn_map(
     map: Res<Map>,
     tile_data: Res<TileData>,
     mut textures: ResMut<Assets<Texture>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     if map_sprite_handles.atlas_loaded {
         return;

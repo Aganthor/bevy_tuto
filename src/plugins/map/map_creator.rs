@@ -274,6 +274,7 @@ pub fn create_map(
     tile_data: &Res<TileData>,
     asset_server: &Res<AssetServer>,
     texture_atlas: &mut TextureAtlas,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
 ) {
     for y in 0..10 as usize {
         for x in 0..10 as usize {
@@ -293,6 +294,7 @@ pub fn create_map(
                 .spawn(SpriteSheetComponents {
                     transform: transform,
                     sprite: TextureAtlasSprite::new(index as u32),
+                    //texture_atlas: texture_atlas.texture,
                     ..Default::default()
                 });
         }
