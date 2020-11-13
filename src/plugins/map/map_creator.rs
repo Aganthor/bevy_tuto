@@ -3,6 +3,7 @@ use bmp::Image;
 use rand::Rng;
 use simdnoise::*;
 use std::collections::HashMap;
+use super::map_plugin::MapSpriteHandles;
 
 pub const TILE_SIZE: u32 = 32;
 
@@ -30,26 +31,26 @@ impl Default for TileData {
         let mut tile_data_map: HashMap<TileType, String> = HashMap::new();
         tile_data_map.insert(
             TileType::DeepWater,
-            "assets/map_tiles/deep_water.png".to_string(),
+            "map_tiles/deep_water.png".to_string(),
         );
-        tile_data_map.insert(TileType::Dirt, "assets/map_tiles/dirt.png".to_string());
-        tile_data_map.insert(TileType::Grass, "assets/map_tiles/grass.png".to_string());
-        tile_data_map.insert(TileType::Forest, "assets/map_tiles/forest.png".to_string());
-        tile_data_map.insert(TileType::Rock, "assets/map_tiles/rock.png".to_string());
-        tile_data_map.insert(TileType::Sand, "assets/map_tiles/sand.png".to_string());
+        tile_data_map.insert(TileType::Dirt, "map_tiles/dirt.png".to_string());
+        tile_data_map.insert(TileType::Grass, "map_tiles/grass.png".to_string());
+        tile_data_map.insert(TileType::Forest, "map_tiles/forest.png".to_string());
+        tile_data_map.insert(TileType::Rock, "map_tiles/rock.png".to_string());
+        tile_data_map.insert(TileType::Sand, "map_tiles/sand.png".to_string());
         tile_data_map.insert(
             TileType::Savannah,
-            "assets/map_tiles/savannah.png".to_string(),
+            "map_tiles/savannah.png".to_string(),
         );
         tile_data_map.insert(
             TileType::ShallowWater,
-            "assets/map_tiles/shallow_water.png".to_string(),
+            "map_tiles/shallow_water.png".to_string(),
         );
-        tile_data_map.insert(TileType::Shore, "assets/map_tiles/shore.png".to_string());
-        tile_data_map.insert(TileType::Snow, "assets/map_tiles/snow.png".to_string());
+        tile_data_map.insert(TileType::Shore, "map_tiles/shore.png".to_string());
+        tile_data_map.insert(TileType::Snow, "map_tiles/snow.png".to_string());
         tile_data_map.insert(
             TileType::Mountain,
-            "assets/map_tiles/mountain.png".to_string(),
+            "map_tiles/mountain.png".to_string(),
         );
         TileData {
             tile_data: tile_data_map,
@@ -268,12 +269,14 @@ impl Map {
     }
 }
 
+//TODO: modify to include the MapSpriteHandle ressource.
 pub fn create_map(
     commands: &mut Commands,
     map: &Res<Map>,
     tile_data: &Res<TileData>,
     asset_server: &Res<AssetServer>,
-    texture_atlas: &mut TextureAtlas,
+    texture_atlas: &TextureAtlas,
+    //map_sprite_handles: Res<MapSpriteHandles>,
     materials: &mut ResMut<Assets<ColorMaterial>>,
 ) {
     for y in 0..10 as usize {
@@ -285,16 +288,19 @@ pub fn create_map(
                 5.0,
             ));
             let handle: Handle<Texture> = asset_server
-                .get_handle(tile_data.get_path(tile_info.tile_type))
-                .unwrap();
-            let index = texture_atlas.get_texture_index(handle).unwrap();
+                .get_handle(&*tile_data.get_path(tile_info.tile_type));
+            let index = texture_atlas.get_texture_index(&handle).unwrap();
 
             commands
-                //.spawn(Camera2dComponents::default())
+                /*.spawn(SpriteComponents {
+                    material: materials.add(texture_atlas.texture.clone().into()),
+                    transform: transform,
+                    ..Default::default()
+                })*/
                 .spawn(SpriteSheetComponents {
                     transform: transform,
                     sprite: TextureAtlasSprite::new(index as u32),
-                    //texture_atlas: texture_atlas.texture,
+                  //  texture_atlas: texture_atlas,
                     ..Default::default()
                 });
         }
