@@ -28,6 +28,8 @@ fn setup(mut map_sprite_handles: ResMut<MapSpriteHandles>, asset_server: Res<Ass
     map_sprite_handles.handles = asset_server.load_folder("map_tiles/").unwrap();
 }
 
+//TODO: Faire un meilleur découpage des system dans le plugin.
+//Avoir un systeme "load_map" et un system "spawn_map" qui s'occupe de l'affichage.
 fn spawn_map(
     mut commands: Commands,
     mut map_sprite_handles: ResMut<MapSpriteHandles>,
