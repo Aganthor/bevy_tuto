@@ -269,15 +269,18 @@ impl Map {
     }
 }
 
-//TODO: modify to include the MapSpriteHandle ressource.
-pub fn create_map(
-    commands: &mut Commands,
-    map: &Res<Map>,
-    tile_data: &Res<TileData>,
-    asset_server: &Res<AssetServer>,
-    texture_atlas: &TextureAtlas,
-    //map_sprite_handles: Res<MapSpriteHandles>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
+//
+// System used to render the map.
+//
+pub fn render_map(
+    mut commands: Commands,
+    mut map_sprite_handles: ResMut<MapSpriteHandles>,
+    asset_server: Res<AssetServer>,
+    map: Res<Map>,
+    tile_data: Res<TileData>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut textures: ResMut<Assets<Texture>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for y in 0..10 as usize {
         for x in 0..10 as usize {
@@ -289,7 +292,7 @@ pub fn create_map(
             ));
             let handle: Handle<Texture> = asset_server
                 .get_handle(&*tile_data.get_path(tile_info.tile_type));
-            let index = texture_atlas.get_texture_index(&handle).unwrap();
+            //let index = texture_atlases.get_texture_index(&handle).unwrap();
 
             commands
                 /*.spawn(SpriteComponents {
@@ -299,7 +302,7 @@ pub fn create_map(
                 })*/
                 .spawn(SpriteSheetComponents {
                     transform: transform,
-                    sprite: TextureAtlasSprite::new(index as u32),
+                    sprite: TextureAtlasSprite::new(0),
                   //  texture_atlas: texture_atlas,
                     ..Default::default()
                 });
