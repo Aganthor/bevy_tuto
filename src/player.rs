@@ -68,8 +68,8 @@ pub fn player_movement_system(
 
         match player.direction {
             Direction::Left => {
-                if player_destination + translation.x() > active_window.width() as f32 / -2.0 {
-                    *translation.x_mut() += player_destination;
+                if player_destination + translation.x > active_window.width() as f32 / -2.0 {
+                    *translation.x += player_destination;
                 }
             }
             Direction::Right => {

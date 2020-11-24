@@ -290,22 +290,19 @@ pub fn render_map(
                 y as f32 * TILE_SIZE as f32,
                 5.0,
             ));
+            /*
             let handle: Handle<Texture> = asset_server
                 .get_handle(&*tile_data.get_path(tile_info.tile_type));
             //let index = texture_atlases.get_texture_index(&handle).unwrap();
 
             commands
-                /*.spawn(SpriteComponents {
-                    material: materials.add(texture_atlas.texture.clone().into()),
-                    transform: transform,
-                    ..Default::default()
-                })*/
                 .spawn(SpriteSheetComponents {
                     transform: transform,
                     sprite: TextureAtlasSprite::new(0),
                   //  texture_atlas: texture_atlas,
                     ..Default::default()
                 });
+            */
         }
     }
 }
