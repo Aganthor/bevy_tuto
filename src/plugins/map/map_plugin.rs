@@ -41,21 +41,7 @@ fn setup(
             texture_atlas_builder.add_texture(texture_id.clone_weak().typed::<Texture>(), &texture);
         }
 
-        let mut texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();    
+        let mut texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
         map_sprite_handles.atlas_loaded = true;
     }
 }
-
-//TODO: Faire un meilleur découpage des systèmes dans le plugin.
-//Avoir un systeme "load_map_data" et un system "draw_map" qui s'occupe de l'affichage.
-/*fn spawn_map(
-    mut commands: Commands,
-    mut map_sprite_handles: ResMut<MapSpriteHandles>,
-    asset_server: Res<AssetServer>,
-    map: Res<Map>,
-    tile_data: Res<TileData>,
-    mut textures: ResMut<Assets<Texture>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-) {
-
-}*/
