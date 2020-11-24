@@ -19,15 +19,15 @@ fn main() {
         .add_plugin(map_plugin::MapPlugin)
         .add_startup_system(setup)
         .add_system(bevy::input::system::exit_on_esc_system.system())
-        .add_system(player_movement_system.system())
+        .add_system(player_movement_system)
         .run();
 }
 
 fn setup(
-    mut commands: Commands,
+    commands: &mut Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands.spawn(Camera2dComponents::default());
-    spawn_player(&mut commands, &asset_server, &mut materials);
+    commands.spawn(Camera2dBundle::default());
+    spawn_player(commands, &asset_server, &mut materials);
 }

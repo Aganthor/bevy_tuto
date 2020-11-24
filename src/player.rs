@@ -22,7 +22,7 @@ pub fn spawn_player(
 ) {
     let texture_handle = asset_server.load("unseen_horror_new.png");
     commands
-        .spawn(SpriteComponents {
+        .spawn(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
             ..Default::default()
@@ -69,22 +69,22 @@ pub fn player_movement_system(
         match player.direction {
             Direction::Left => {
                 if player_destination + translation.x > active_window.width() as f32 / -2.0 {
-                    *translation.x += player_destination;
+                    translation.x += player_destination;
                 }
             }
             Direction::Right => {
-                if player_destination + translation.x() < active_window.width() as f32 / 2.0 {
-                    *translation.x_mut() += player_destination;
+                if player_destination + translation.x < active_window.width() as f32 / 2.0 {
+                    translation.x += player_destination;
                 }
             }
             Direction::Up => {
-                if player_destination + translation.y() < active_window.height() as f32 / 2.0 {
-                    *translation.y_mut() += player_destination;
+                if player_destination + translation.y < active_window.height() as f32 / 2.0 {
+                    translation.y += player_destination;
                 }
             }
             Direction::Down => {
-                if player_destination + translation.y() > active_window.height() as f32 / -2.0 {
-                    *translation.y_mut() += player_destination;
+                if player_destination + translation.y > active_window.height() as f32 / -2.0 {
+                    translation.y += player_destination;
                 }
             }
             Direction::Idle => {}

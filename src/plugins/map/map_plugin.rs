@@ -20,12 +20,12 @@ impl Plugin for MapPlugin {
             .init_resource::<Map>()
             .init_resource::<TileData>()
             .add_startup_system(setup.system())
-            .add_system(render_map.system());
+            .add_system(render_map);
     }
 }
 
 fn setup(
-    mut map_sprite_handles: ResMut<MapSpriteHandles>, 
+    mut map_sprite_handles: ResMut<MapSpriteHandles>,
     asset_server: Res<AssetServer>,
     mut textures: ResMut<Assets<Texture>>,
 ) {

@@ -273,7 +273,7 @@ impl Map {
 // System used to render the map.
 //
 pub fn render_map(
-    mut commands: Commands,
+    commands: &mut Commands,
     mut map_sprite_handles: ResMut<MapSpriteHandles>,
     asset_server: Res<AssetServer>,
     map: Res<Map>,
