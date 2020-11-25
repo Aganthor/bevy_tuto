@@ -31,6 +31,7 @@ fn load_and_prepare_sprites(
     mut textures: ResMut<Assets<Texture>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>
 ) {
+    info!("load_and_prepare_sprites system");
     map_sprite_handles.handles = asset_server.load_folder("map_tiles/").unwrap();
 
     let mut texture_atlas_builder = TextureAtlasBuilder::default();

@@ -280,6 +280,7 @@ pub fn render_map(
     tile_data: Res<TileData>,
     texture_atlases: Res<Assets<TextureAtlas>>
 ) {
+    info!("render_map system");
     for y in 0..20 as usize {
         for x in 0..20 as usize {
             let tile_info = map.get_tileinfo_at(x, y);
@@ -291,6 +292,7 @@ pub fn render_map(
             
             let handle: Handle<Texture> = asset_server.get_handle(&*tile_data.get_path(tile_info.tile_type));
             let texture_atlas = texture_atlases.get(map_sprite_handles.atlas_handle.clone()).unwrap();
+            println!("Size = {}", texture_atlas.len());
             let texture_index = texture_atlas.get_texture_index(&handle).unwrap();
 
             commands
