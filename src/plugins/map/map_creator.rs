@@ -119,37 +119,37 @@ impl MapBuilder {
             map_size: 0,
         }
     }
-
+    
     pub fn with_seed(mut self, seed: i32) -> MapBuilder {
         self.seed = seed;
         self
     }
-
+    
     pub fn with_frequency(mut self, freq: f32) -> MapBuilder {
         self.frequency = freq;
         self
     }
-
+    
     pub fn with_lacunarity(mut self, lacunarity: f32) -> MapBuilder {
         self.lacunarity = lacunarity;
         self
     }
-
+    
     pub fn with_gain(mut self, gain: f32) -> MapBuilder {
         self.gain = gain;
         self
     }
-
+    
     pub fn with_octaves(mut self, octaves: u8) -> MapBuilder {
         self.octaves = octaves;
         self
     }
-
+    
     pub fn with_size(mut self, size: usize) -> MapBuilder {
         self.map_size = size;
         self
     }
-
+    
     pub fn build(&self) -> Map {
         Map {
             noise_vector: Vec::new(),
@@ -179,21 +179,21 @@ impl Default for Map {
     fn default() -> Self {
         let mut rng = rand::thread_rng();
         let seed = rng.gen();
-
+        
         println!("Map seed is {}.", seed);
-
+        
         let mut map = MapBuilder::new()
-            .with_seed(seed)
-            .with_frequency(0.03)
-            .with_gain(2.5)
-            .with_lacunarity(0.55)
-            .with_octaves(2)
-            .with_size(10)
-            .build();
-
+        .with_seed(seed)
+        .with_frequency(0.03)
+        .with_gain(2.5)
+        .with_lacunarity(0.55)
+        .with_octaves(2)
+        .with_size(10)
+        .build();
+        
         map.generate_noise_map();
         map.generate_level();
-
+        
         map
     }
 }
@@ -201,17 +201,17 @@ impl Default for Map {
 impl Map {
     pub fn generate_noise_map(&mut self) {
         self.noise_vector = NoiseBuilder::fbm_2d(self.map_size, self.map_size)
-            .with_seed(self.noise_seed)
-            .with_freq(self.noise_frequency)
-            .with_lacunarity(self.noise_lacunarity)
-            .with_gain(self.noise_gain)
-            .with_octaves(self.noise_octaves)
-            .generate_scaled(0.0, 1.0);
+        .with_seed(self.noise_seed)
+        .with_freq(self.noise_frequency)
+        .with_lacunarity(self.noise_lacunarity)
+        .with_gain(self.noise_gain)
+        .with_octaves(self.noise_octaves)
+        .generate_scaled(0.0, 1.0);
     }
     /*
-        pub fn map_max_size(&self) -> f32 {
-            self.map_size as f32 * TILE_SIZE as f32
-        }
+    pub fn map_max_size(&self) -> f32 {
+        self.map_size as f32 * TILE_SIZE as f32
+    }
     */
     pub fn generate_level(&mut self) {
         for y in 0..self.map_size {
@@ -221,11 +221,11 @@ impl Map {
                 let tile_y_pos = y * TILE_SIZE as usize;
                 let tile_type = self.biome(map_value);
                 self.level_data
-                    .push(TileInfo::new(tile_x_pos, tile_y_pos, tile_type));
+                .push(TileInfo::new(tile_x_pos, tile_y_pos, tile_type));
             }
         }
     }
-
+    
     fn biome(&self, map_elevation: f32) -> TileType {
         if map_elevation < 0.1 {
             return TileType::DeepWater;
@@ -245,15 +245,15 @@ impl Map {
             return TileType::Mountain;
         }
     }
-
+    
     pub fn get_tileinfo_at(&self, x: usize, y: usize) -> TileInfo {
         self.level_data[y * self.map_size + x as usize]
     }
-
+    
     #[allow(dead_code)]
     pub fn save_image(self) {
         let mut img = Image::new(self.map_size as u32, self.map_size as u32);
-
+        
         for x in 0..self.map_size - 1 {
             for y in 0..self.map_size - 1 {
                 let height = self.noise_vector[x * self.map_size + y];
@@ -274,12 +274,11 @@ impl Map {
 //
 pub fn render_map(
     commands: &mut Commands,
-    mut map_sprite_handles: ResMut<MapSpriteHandles>,
+    map_sprite_handles: Res<MapSpriteHandles>,
     asset_server: Res<AssetServer>,
     map: Res<Map>,
     tile_data: Res<TileData>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut textures: ResMut<Assets<Texture>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     for y in 0..10 as usize {
@@ -290,19 +289,17 @@ pub fn render_map(
                 y as f32 * TILE_SIZE as f32,
                 5.0,
             ));
-            /*
-            let handle: Handle<Texture> = asset_server
-                .get_handle(&*tile_data.get_path(tile_info.tile_type));
-            //let index = texture_atlases.get_texture_index(&handle).unwrap();
-
+            
+            let handle: Handle<Texture> = asset_server.get_handle(&*tile_data.get_path(tile_info.tile_type));
+            
             commands
-                .spawn(SpriteSheetComponents {
-                    transform: transform,
-                    sprite: TextureAtlasSprite::new(0),
-                  //  texture_atlas: texture_atlas,
-                    ..Default::default()
-                });
-            */
+            .spawn(SpriteSheetBundle {
+                transform: transform,
+                sprite: TextureAtlasSprite::new(0),
+                //  texture_atlas: texture_atlas,
+                ..Default::default()
+            });
         }
     }
-}
+    }
+    
