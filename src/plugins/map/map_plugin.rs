@@ -11,7 +11,7 @@ pub struct MapPlugin;
 #[derive(Default)]
 pub struct MapSpriteHandles {
     handles: Vec<HandleUntyped>,
-    atlas_handle: Handle<TextureAtlas>,
+    pub atlas_handle: Handle<TextureAtlas>,
     atlas_loaded: bool,
 }
 

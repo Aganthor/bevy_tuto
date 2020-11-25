@@ -188,7 +188,7 @@ impl Default for Map {
         .with_gain(2.5)
         .with_lacunarity(0.55)
         .with_octaves(2)
-        .with_size(10)
+        .with_size(20)
         .build();
         
         map.generate_noise_map();
@@ -278,28 +278,36 @@ pub fn render_map(
     asset_server: Res<AssetServer>,
     map: Res<Map>,
     tile_data: Res<TileData>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    texture_atlases: Res<Assets<TextureAtlas>>
 ) {
-    for y in 0..10 as usize {
-        for x in 0..10 as usize {
+    for y in 0..20 as usize {
+        for x in 0..20 as usize {
             let tile_info = map.get_tileinfo_at(x, y);
             let transform = Transform::from_translation(Vec3::new(
                 x as f32 * TILE_SIZE as f32,
                 y as f32 * TILE_SIZE as f32,
-                5.0,
+                1.0,
             ));
             
             let handle: Handle<Texture> = asset_server.get_handle(&*tile_data.get_path(tile_info.tile_type));
-            
+            let texture_atlas = texture_atlases.get(map_sprite_handles.atlas_handle.clone()).unwrap();
+            let texture_index = texture_atlas.get_texture_index(&handle).unwrap();
+
             commands
             .spawn(SpriteSheetBundle {
+                texture_atlas: map_sprite_handles.atlas_handle.clone(),
                 transform: transform,
-                sprite: TextureAtlasSprite::new(0),
-                //  texture_atlas: texture_atlas,
+                sprite: TextureAtlasSprite::new(texture_index as u32),
                 ..Default::default()
             });
+            /*This shit works...*/
+            // commands
+            //     .spawn(SpriteBundle {
+            //         transform: transform,
+            //         material: materials.add(handle.into()),
+            //         ..Default::default()
+            //     });
         }
     }
-    }
+}
     
