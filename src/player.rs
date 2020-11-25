@@ -24,7 +24,7 @@ pub fn spawn_player(
     commands
         .spawn(SpriteBundle {
             material: materials.add(texture_handle.into()),
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
+            transform: Transform::from_translation(Vec3::new(1.0, 1.0, 1.0)),
             ..Default::default()
         })
         .with(Player {
@@ -68,22 +68,22 @@ pub fn player_movement_system(
 
         match player.direction {
             Direction::Left => {
-                if player_destination + translation.x > active_window.width() as f32 / -2.0 {
+                if player_destination + translation.x < 0.0 {
                     translation.x += player_destination;
                 }
             }
             Direction::Right => {
-                if player_destination + translation.x < active_window.width() as f32 / 2.0 {
+                if player_destination + translation.x < active_window.width() as f32 {
                     translation.x += player_destination;
                 }
             }
             Direction::Up => {
-                if player_destination + translation.y < active_window.height() as f32 / 2.0 {
+                if player_destination + translation.y < active_window.height() as f32 {
                     translation.y += player_destination;
                 }
             }
             Direction::Down => {
-                if player_destination + translation.y > active_window.height() as f32 / -2.0 {
+                if player_destination + translation.y > 0.0 {
                     translation.y += player_destination;
                 }
             }
