@@ -301,6 +301,7 @@ pub fn render_map(
 
         let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
         let atlas_handle = texture_atlases.add(texture_atlas);
+        //texture_atlas = texture_atlases.get(&atlas_handle).unwrap();
 
         for y in 0..20 as usize {
             for x in 0..20 as usize {
@@ -316,14 +317,14 @@ pub fn render_map(
 
                 commands
                 .spawn(SpriteSheetBundle {
-                    texture_atlas: atlas_handle.clone_weak(),
+                    texture_atlas: atlas_handle,
                     transform: transform,
                     sprite: TextureAtlasSprite::new(texture_index as u32),
                     ..Default::default()
                 });
             }
         }
-        
+
         map_sprite_handles.atlas_loaded = true;
     }
 }
