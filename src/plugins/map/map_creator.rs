@@ -1,4 +1,8 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    asset::{LoadState},
+    sprite::TextureAtlasBuilder
+};
 use bmp::Image;
 use rand::Rng;
 use simdnoise::*;
@@ -119,37 +123,37 @@ impl MapBuilder {
             map_size: 0,
         }
     }
-    
+
     pub fn with_seed(mut self, seed: i32) -> MapBuilder {
         self.seed = seed;
         self
     }
-    
+
     pub fn with_frequency(mut self, freq: f32) -> MapBuilder {
         self.frequency = freq;
         self
     }
-    
+
     pub fn with_lacunarity(mut self, lacunarity: f32) -> MapBuilder {
         self.lacunarity = lacunarity;
         self
     }
-    
+
     pub fn with_gain(mut self, gain: f32) -> MapBuilder {
         self.gain = gain;
         self
     }
-    
+
     pub fn with_octaves(mut self, octaves: u8) -> MapBuilder {
         self.octaves = octaves;
         self
     }
-    
+
     pub fn with_size(mut self, size: usize) -> MapBuilder {
         self.map_size = size;
         self
     }
-    
+
     pub fn build(&self) -> Map {
         Map {
             noise_vector: Vec::new(),
@@ -179,9 +183,9 @@ impl Default for Map {
     fn default() -> Self {
         let mut rng = rand::thread_rng();
         let seed = rng.gen();
-        
+
         println!("Map seed is {}.", seed);
-        
+
         let mut map = MapBuilder::new()
         .with_seed(seed)
         .with_frequency(0.03)
@@ -190,10 +194,10 @@ impl Default for Map {
         .with_octaves(2)
         .with_size(20)
         .build();
-        
+
         map.generate_noise_map();
         map.generate_level();
-        
+
         map
     }
 }
@@ -225,7 +229,7 @@ impl Map {
             }
         }
     }
-    
+
     fn biome(&self, map_elevation: f32) -> TileType {
         if map_elevation < 0.1 {
             return TileType::DeepWater;
@@ -245,15 +249,15 @@ impl Map {
             return TileType::Mountain;
         }
     }
-    
+
     pub fn get_tileinfo_at(&self, x: usize, y: usize) -> TileInfo {
         self.level_data[y * self.map_size + x as usize]
     }
-    
+
     #[allow(dead_code)]
     pub fn save_image(self) {
         let mut img = Image::new(self.map_size as u32, self.map_size as u32);
-        
+
         for x in 0..self.map_size - 1 {
             for y in 0..self.map_size - 1 {
                 let height = self.noise_vector[x * self.map_size + y];
@@ -274,42 +278,52 @@ impl Map {
 //
 pub fn render_map(
     commands: &mut Commands,
-    map_sprite_handles: Res<MapSpriteHandles>,
+    mut map_sprite_handles: ResMut<MapSpriteHandles>,
     asset_server: Res<AssetServer>,
     map: Res<Map>,
     tile_data: Res<TileData>,
-    texture_atlases: Res<Assets<TextureAtlas>>
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut textures: ResMut<Assets<Texture>>
 ) {
     info!("render_map system");
-    for y in 0..20 as usize {
-        for x in 0..20 as usize {
-            let tile_info = map.get_tileinfo_at(x, y);
-            let transform = Transform::from_translation(Vec3::new(
-                x as f32 * TILE_SIZE as f32,
-                y as f32 * TILE_SIZE as f32,
-                1.0,
-            ));
-            
-            let handle: Handle<Texture> = asset_server.get_handle(&*tile_data.get_path(tile_info.tile_type));
-            let texture_atlas = texture_atlases.get(map_sprite_handles.atlas_handle.clone()).unwrap();
-            println!("Size = {}", texture_atlas.len());
-            let texture_index = texture_atlas.get_texture_index(&handle).unwrap();
+    if map_sprite_handles.atlas_loaded {
+        return;
+    }
 
-            commands
-            .spawn(SpriteSheetBundle {
-                texture_atlas: map_sprite_handles.atlas_handle.clone(),
-                transform: transform,
-                sprite: TextureAtlasSprite::new(texture_index as u32),
-                ..Default::default()
-            });
-            /*This shit works...*/
-            // commands
-            //     .spawn(SpriteBundle {
-            //         transform: transform,
-            //         material: materials.add(handle.into()),
-            //         ..Default::default()
-            //     });
+    let mut texture_atlas_builder = TextureAtlasBuilder::default();
+    if let LoadState::Loaded =
+        asset_server.get_group_load_state(map_sprite_handles.handles.iter().map(|handle| handle.id))
+    {
+        for texture_id in map_sprite_handles.handles.iter() {
+            let texture = textures.get(texture_id).unwrap();
+            texture_atlas_builder.add_texture(texture_id.clone_weak().typed::<Texture>(), &texture);
         }
+
+        let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
+        let atlas_handle = texture_atlases.add(texture_atlas);
+
+        for y in 0..20 as usize {
+            for x in 0..20 as usize {
+                let tile_info = map.get_tileinfo_at(x, y);
+                let transform = Transform::from_translation(Vec3::new(
+                    x as f32 * TILE_SIZE as f32,
+                    y as f32 * TILE_SIZE as f32,
+                    1.0,
+                ));
+
+                let handle: Handle<Texture> = asset_server.get_handle(&*tile_data.get_path(tile_info.tile_type));
+                let texture_index = texture_atlas.get_texture_index(&handle).unwrap();
+
+                commands
+                .spawn(SpriteSheetBundle {
+                    texture_atlas: atlas_handle.clone_weak(),
+                    transform: transform,
+                    sprite: TextureAtlasSprite::new(texture_index as u32),
+                    ..Default::default()
+                });
+            }
+        }
+        
+        map_sprite_handles.atlas_loaded = true;
     }
 }
-    
