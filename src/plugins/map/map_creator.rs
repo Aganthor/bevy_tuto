@@ -283,9 +283,9 @@ pub fn render_map(
     map: Res<Map>,
     tile_data: Res<TileData>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut textures: ResMut<Assets<Texture>>
+    mut textures: ResMut<Assets<Texture>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    info!("render_map system");
     if map_sprite_handles.atlas_loaded {
         return;
     }
@@ -300,8 +300,7 @@ pub fn render_map(
         }
 
         let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
-        let atlas_handle = texture_atlases.add(texture_atlas);
-        //texture_atlas = texture_atlases.get(&atlas_handle).unwrap();
+        let _atlas_handle = texture_atlases.add(texture_atlas);
 
         for y in 0..20 as usize {
             for x in 0..20 as usize {
@@ -313,15 +312,13 @@ pub fn render_map(
                 ));
 
                 let handle: Handle<Texture> = asset_server.get_handle(&*tile_data.get_path(tile_info.tile_type));
-                let texture_index = texture_atlas.get_texture_index(&handle).unwrap();
 
                 commands
-                .spawn(SpriteSheetBundle {
-                    texture_atlas: atlas_handle,
-                    transform: transform,
-                    sprite: TextureAtlasSprite::new(texture_index as u32),
-                    ..Default::default()
-                });
+                    .spawn(SpriteBundle {
+                        transform: transform,
+                        material: materials.add(handle.into()),
+                        ..Default::default()
+                    });
             }
         }
 
