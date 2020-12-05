@@ -31,12 +31,12 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands.spawn(Camera2dBundle {
-        orthographic_projection: OrthographicProjection {
-            window_origin: WindowOrigin::BottomLeft,
-            ..Default::default()
-        },
-        ..Default::default()
-    });
+    // commands.spawn(Camera2dBundle {
+    //     orthographic_projection: OrthographicProjection {
+    //         window_origin: WindowOrigin::BottomLeft,
+    //         ..Default::default()
+    //     },
+    //     ..Default::default()
+    // });
     spawn_player(commands, &asset_server, &mut materials);
 }
