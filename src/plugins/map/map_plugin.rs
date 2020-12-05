@@ -1,8 +1,4 @@
-use bevy::{
-    asset::{LoadState},
-    prelude::*,
-    sprite::TextureAtlasBuilder,
-};
+use bevy::prelude::*;
 
 use super::map_creator::*;
 
