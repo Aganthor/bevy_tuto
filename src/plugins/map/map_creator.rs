@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use super::map_plugin::MapSpriteHandles;
 
 pub const TILE_SIZE: u32 = 32;
+const MAP_SIZE: u32 = 20;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub enum TileType {
@@ -192,7 +193,7 @@ impl Default for Map {
         .with_gain(2.5)
         .with_lacunarity(0.55)
         .with_octaves(2)
-        .with_size(20)
+        .with_size(MAP_SIZE as usize)
         .build();
 
         map.generate_noise_map();
@@ -302,12 +303,12 @@ pub fn render_map(
         let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
         let _atlas_handle = texture_atlases.add(texture_atlas);
 
-        for y in 0..20 as usize {
-            for x in 0..20 as usize {
+        for y in 0..MAP_SIZE as usize {
+            for x in 0..MAP_SIZE as usize {
                 let tile_info = map.get_tileinfo_at(x, y);
                 let transform = Transform::from_translation(Vec3::new(
-                    x as f32 * TILE_SIZE as f32,
-                    y as f32 * TILE_SIZE as f32,
+                    x as f32 * TILE_SIZE as f32 + TILE_SIZE as f32 / 2.0,
+                    y as f32 * TILE_SIZE as f32 + TILE_SIZE as f32 / 2.0,
                     1.0,
                 ));
 
