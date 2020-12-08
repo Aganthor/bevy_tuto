@@ -7,10 +7,12 @@ use bmp::Image;
 use rand::Rng;
 use simdnoise::*;
 use std::collections::HashMap;
+use std::fmt;
 use super::map_plugin::MapSpriteHandles;
 
 pub const TILE_SIZE: u32 = 32;
-const MAP_SIZE: u32 = 20;
+const MAP_SIZE_X: u32 = 32;
+const MAP_SIZE_Y: u32 = 24;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub enum TileType {
@@ -26,6 +28,25 @@ pub enum TileType {
     Snow,
     Mountain,
 }
+
+impl fmt::Display for TileType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            TileType::DeepWater => write!(f, "deep water"),
+            TileType::Dirt => write!(f, "dirt"),
+            TileType::Grass => write!(f, "grass"),
+            TileType::Forest => write!(f, "forest"),
+            TileType::Rock => write!(f, "rock"),
+            TileType::Sand => write!(f, "sand"),
+            TileType::Savannah => write!(f, "savannah"),
+            TileType::ShallowWater => write!(f, "shallow water"),
+            TileType::Shore => write!(f, "shore"),
+            TileType::Snow => write!(f, "snow"),
+            TileType::Mountain => write!(f, "mountain")
+        }
+    }
+}
+
 //#[derive(Copy, Clone)]
 pub struct TileData {
     pub tile_data: HashMap<TileType, String>,
@@ -193,7 +214,7 @@ impl Default for Map {
         .with_gain(2.5)
         .with_lacunarity(0.55)
         .with_octaves(2)
-        .with_size(MAP_SIZE as usize)
+        .with_size(MAP_SIZE_X as usize * MAP_SIZE_Y as usize)
         .build();
 
         map.generate_noise_map();
@@ -303,8 +324,8 @@ pub fn render_map(
         let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
         let _atlas_handle = texture_atlases.add(texture_atlas);
 
-        for y in 0..MAP_SIZE as usize {
-            for x in 0..MAP_SIZE as usize {
+        for y in 0..MAP_SIZE_Y as usize {
+            for x in 0..MAP_SIZE_X as usize {
                 let tile_info = map.get_tileinfo_at(x, y);
                 let transform = Transform::from_translation(Vec3::new(
                     x as f32 * TILE_SIZE as f32 + TILE_SIZE as f32 / 2.0,

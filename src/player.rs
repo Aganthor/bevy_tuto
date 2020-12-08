@@ -1,9 +1,7 @@
-use bevy::{render::camera::{
-    OrthographicProjection, WindowOrigin},
-    prelude::*
-};
+use bevy::{input::{ElementState, mouse::{MouseButtonInput}}, prelude::*, render::camera::{OrthographicProjection, WindowOrigin}};
 
-//use crate::plugins::map::map_creator::TILE_SIZE;
+use crate::plugins::map::map_creator::TILE_SIZE;
+use crate::plugins::map::map_creator::Map;
 
 pub enum Direction {
     Left,
@@ -20,8 +18,10 @@ pub struct Player {
 
 pub struct CursorState {
     cursor: EventReader<CursorMoved>,
+    button: EventReader<MouseButtonInput>,
     camera_e: Entity,
 }
+pub struct MouseLocation(Vec2);
 
 pub fn spawn_player(
     commands: &mut Commands,
@@ -38,6 +38,7 @@ pub fn spawn_player(
     let e = commands.spawn(camera).current_entity().unwrap();
     commands.insert_resource(CursorState {
         cursor: Default::default(),
+        button: Default::default(),
         camera_e: e,
     });
 
@@ -45,37 +46,52 @@ pub fn spawn_player(
     commands
         .spawn(SpriteBundle {
             material: materials.add(texture_handle.into()),
-            transform: Transform::from_translation(Vec3::new(32.0, 1.0, 5.0)),
+            transform: Transform::from_translation(Vec3::new(
+                TILE_SIZE as f32 / 2.0, 
+                TILE_SIZE as f32 / 2.0, 
+                5.0)),
             ..Default::default()
         })
         .with(Player {
             speed: 500.0,
             direction: Direction::Idle,
         });
+
+    commands.insert_resource(MouseLocation(Vec2::new(0.0, 0.0)));
+}
+
+pub fn mouse_movement_updating_system(
+    mut mouse_pos: ResMut<MouseLocation>,
+    mut state: ResMut<CursorState>,
+    cursor_moved_events: Res<Events<CursorMoved>>,
+) {
+    for event in state.cursor.iter(&cursor_moved_events) {
+        mouse_pos.0.x = f32::from(event.position.x / TILE_SIZE as f32).floor() + 1.0;
+        mouse_pos.0.y = f32::from(event.position.y / TILE_SIZE as f32).floor() + 1.0;
+    }
+}
+
+pub fn get_tile_info_system(
+    ev_button: Res<Events<MouseButtonInput>>,
+    map: Res<Map>,
+    mouse_pos: Res<MouseLocation>,    
+    mut state: ResMut<CursorState>,
+) {
+    for event in state.button.iter(&ev_button)
+    {
+        if event.state == ElementState::Pressed {
+            let tile_info = map.get_tileinfo_at(mouse_pos.0.x as usize, mouse_pos.0.y as usize);
+            println!("The player is standing on {}", tile_info.tile_type);
+        }
+    }
 }
 
 pub fn player_movement_system(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     windows: Res<Windows>,
-    mut state: ResMut<CursorState>,
-    ev_cursor: Res<Events<CursorMoved>>,
-    //q_camera: Query<&Transform>,
     mut query: Query<(&mut Player, &mut Transform)>,
 ) {
-    //Check world pos...
-    // let camera_transform = q_camera.get(state.camera_e).unwrap();
-
-    // for ev in state.cursor.iter(&ev_cursor) {
-    //     let wnd = windows.get(ev.id).unwrap();
-    //     let size = Vec2::new(wnd.width() as f32, wnd.height() as f32);
-
-    //     let p = ev.position - size;
-
-    //     let world_pos = camera_transform.compute_matrix() * p.extend(0.0).extend(1.0);
-    //     println!("World coords: {}/{}", world_pos.x, world_pos.y);
-    // }
-
     for (mut player, mut transform) in query.iter_mut() {
         let mut direction = 0.0;
         let translation = &mut transform.translation;

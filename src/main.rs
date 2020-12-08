@@ -13,8 +13,8 @@ fn main() {
     App::build()
         .add_resource(WindowDescriptor {
             title: "Void destiny - the roguelike game".to_string(),
-            width: 800,
-            height: 600,
+            width: 1024,
+            height: 768,
             vsync: true,
             ..Default::default()
         })
@@ -23,6 +23,8 @@ fn main() {
         .add_startup_system(setup)
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .add_system(player_movement_system)
+        .add_system(mouse_movement_updating_system)
+        .add_system(get_tile_info_system)
         .run();
 }
 
