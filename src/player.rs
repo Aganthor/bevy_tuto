@@ -104,32 +104,31 @@ pub fn player_movement_system(
         let translation = &mut transform.translation;
         let mut player_destination: Vec3 = Vec2::zero().extend(5.0);
 
-        println!("Player position from Transform = {:?}", translation);
-
         if keyboard_input.just_pressed(KeyCode::Left) {
             player.direction = Direction::Left;
-            player_destination.x -= -1.0;
+            player_destination.x = translation.x + player.speed * -1.0;
             player_destination.y = translation.y;
         }
         else if keyboard_input.just_pressed(KeyCode::Right) {
             player.direction = Direction::Right;
-            player_destination.x = player.speed * 1.0;
+            player_destination.x = translation.x + player.speed * 1.0;
             player_destination.y = translation.y;
         }
         else if keyboard_input.just_pressed(KeyCode::Up) {
             player.direction = Direction::Up;
             player_destination.x = translation.x;
-            player_destination.y = player.speed * 1.0;
+            player_destination.y = translation.y + player.speed * 1.0;
         }
         else if keyboard_input.just_pressed(KeyCode::Down) {
             player.direction = Direction::Down;
             player_destination.x = translation.x;
-            player_destination.y = player.speed * -1.0;
+            player_destination.y = translation.y + player.speed * -1.0;
         }
         else {
             player.direction = Direction::Idle;
         }
 
+        println!("Player dest = {:?}", player_destination);
         let active_window = windows.get_primary().unwrap();
 
         if validate_movement(
@@ -138,7 +137,8 @@ pub fn player_movement_system(
             &map, 
             &active_window) {
                 //Movement is legal, proceed.
-                *translation = player_destination;
+                translation.x = player_destination.x;
+                translation.y = player_destination.y;
         } else {
             println!("Movement was illegal...");
         }
