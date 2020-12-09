@@ -53,7 +53,7 @@ pub fn spawn_player(
             ..Default::default()
         })
         .with(Player {
-            speed: 500.0,
+            speed: TILE_SIZE as f32,
             direction: Direction::Idle,
         });
 
@@ -66,8 +66,7 @@ pub fn mouse_movement_updating_system(
     cursor_moved_events: Res<Events<CursorMoved>>,
 ) {
     for event in state.cursor.iter(&cursor_moved_events) {
-        mouse_pos.0.x = f32::from(event.position.x / TILE_SIZE as f32).floor() + 1.0;
-        mouse_pos.0.y = f32::from(event.position.y / TILE_SIZE as f32).floor() + 1.0;
+        mouse_pos.0 = transform_pos_to_map_pos(&event.position.extend(5.0)).truncate();
     }
 }
 
@@ -86,61 +85,104 @@ pub fn get_tile_info_system(
     }
 }
 
+fn transform_pos_to_map_pos(position: &Vec3) -> Vec3 {
+    let map_pos = Vec3::new(
+        (position.x / TILE_SIZE as f32).floor() + 1.0,
+        (position.y / TILE_SIZE as f32).floor() + 1.0,
+        5.0
+    );
+    map_pos
+}
+
 pub fn player_movement_system(
-    time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     windows: Res<Windows>,
+    map: Res<Map>,
     mut query: Query<(&mut Player, &mut Transform)>,
 ) {
     for (mut player, mut transform) in query.iter_mut() {
-        let mut direction = 0.0;
         let translation = &mut transform.translation;
+        let mut player_destination: Vec3 = Vec2::zero().extend(5.0);
 
-        if keyboard_input.pressed(KeyCode::Left) {
+        println!("Player position from Transform = {:?}", translation);
+
+        if keyboard_input.just_pressed(KeyCode::Left) {
             player.direction = Direction::Left;
-            direction -= 1.0;
+            player_destination.x -= -1.0;
+            player_destination.y = translation.y;
         }
-        else if keyboard_input.pressed(KeyCode::Right) {
+        else if keyboard_input.just_pressed(KeyCode::Right) {
             player.direction = Direction::Right;
-            direction += 1.0;
+            player_destination.x = player.speed * 1.0;
+            player_destination.y = translation.y;
         }
-        else if keyboard_input.pressed(KeyCode::Up) {
+        else if keyboard_input.just_pressed(KeyCode::Up) {
             player.direction = Direction::Up;
-            direction += 1.0;
+            player_destination.x = translation.x;
+            player_destination.y = player.speed * 1.0;
         }
-        else if keyboard_input.pressed(KeyCode::Down) {
+        else if keyboard_input.just_pressed(KeyCode::Down) {
             player.direction = Direction::Down;
-            direction -= 1.0;
+            player_destination.x = translation.x;
+            player_destination.y = player.speed * -1.0;
         }
         else {
             player.direction = Direction::Idle;
         }
 
         let active_window = windows.get_primary().unwrap();
-        let player_destination = time.delta_seconds * direction * player.speed;
 
-        match player.direction {
-            Direction::Left => {
-                if player_destination + translation.x < 0.0 {
-                    translation.x += player_destination;
-                }
-            }
-            Direction::Right => {
-                if player_destination + translation.x < active_window.width() as f32 {
-                    translation.x += player_destination;
-                }
-            }
-            Direction::Up => {
-                if player_destination + translation.y < active_window.height() as f32 {
-                    translation.y += player_destination;
-                }
-            }
-            Direction::Down => {
-                if player_destination + translation.y > 0.0 {
-                    translation.y += player_destination;
-                }
-            }
-            Direction::Idle => {}
+        if validate_movement(
+            &player_destination, 
+            &player.direction, 
+            &map, 
+            &active_window) {
+                //Movement is legal, proceed.
+                *translation = player_destination;
+        } else {
+            println!("Movement was illegal...");
         }
     }
+}
+
+fn validate_movement(
+    player_destination: &Vec3,
+    direction: &Direction, 
+    map: &Res<Map>,
+    window: &Window,
+) -> bool {
+    let mut screen_movement_legal = false;
+    let mut map_terrain_movement_legal = false;
+
+    //First, check if the player wants to move outside the game screen.
+    match direction {
+        Direction::Left => {
+            if player_destination.x < 0.0 {
+                screen_movement_legal = true;
+            }
+        }
+        Direction::Right => {
+            if player_destination.x < window.width() as f32 {
+                screen_movement_legal = true;
+            }
+        }
+        Direction::Up => {
+            if player_destination.y < window.height() as f32 {
+                screen_movement_legal = true;
+            }
+        }
+        Direction::Down => {
+            if player_destination.y > 0.0 {    
+                screen_movement_legal = true;
+            }
+        }
+        Direction::Idle => {}
+    }
+
+    //Second, check whether the ground tile is walkable at the player_destination.
+    let map_pos = transform_pos_to_map_pos(&player_destination);
+    let tile_info = map.get_tileinfo_at(map_pos.x as usize, map_pos.y as usize);
+    map_terrain_movement_legal = tile_info.walkable;
+
+    screen_movement_legal || map_terrain_movement_legal
 }
