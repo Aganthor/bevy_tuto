@@ -87,8 +87,8 @@ pub fn get_tile_info_system(
 
 fn transform_pos_to_map_pos(position: &Vec3) -> Vec3 {
     let map_pos = Vec3::new(
-        (position.x / TILE_SIZE as f32).floor() + 1.0,
-        (position.y / TILE_SIZE as f32).floor() + 1.0,
+        (position.x / TILE_SIZE as f32).floor(),
+        (position.y / TILE_SIZE as f32).floor(),
         5.0
     );
     map_pos
@@ -197,10 +197,6 @@ fn validate_movement(
     let map_pos = transform_pos_to_map_pos(&player_destination);
     let tile_info = map.get_tileinfo_at(map_pos.x as usize, map_pos.y as usize);
     map_terrain_movement_legal = tile_info.walkable;
-
-    println!("Destination tile at {}/{} is {}", map_pos.x, map_pos.y, tile_info.tile_type);
-
-    println!("Legal screen = {}, Legal map = {}", screen_movement_legal, map_terrain_movement_legal);
 
     (screen_movement_legal, map_terrain_movement_legal)
 }
