@@ -126,21 +126,29 @@ pub fn player_movement_system(
         }
         else {
             player.direction = Direction::Idle;
+            return;
         }
 
-        println!("Player dest = {:?}", player_destination);
         let active_window = windows.get_primary().unwrap();
 
-        if validate_movement(
+        let movement: (bool, bool) = validate_movement(
             &player_destination, 
             &player.direction, 
             &map, 
-            &active_window) {
+            &active_window);
+        if movement.0 {
+            if movement.1 {
                 //Movement is legal, proceed.
                 translation.x = player_destination.x;
                 translation.y = player_destination.y;
+            }
+            else {
+                println!("Movement was illegal...");
+                return;
+            }
         } else {
-            println!("Movement was illegal...");
+            println!("Movement was illegal...");            
+            return;
         }
     }
 }
@@ -150,7 +158,7 @@ fn validate_movement(
     direction: &Direction, 
     map: &Res<Map>,
     window: &Window,
-) -> bool {
+) -> (bool, bool) {
     let mut screen_movement_legal = false;
     let mut map_terrain_movement_legal = false;
 
@@ -158,6 +166,8 @@ fn validate_movement(
     match direction {
         Direction::Left => {
             if player_destination.x < 0.0 {
+                screen_movement_legal = false;
+            } else {
                 screen_movement_legal = true;
             }
         }
@@ -179,10 +189,18 @@ fn validate_movement(
         Direction::Idle => {}
     }
 
+    if !screen_movement_legal {
+        return (false, false);
+    }
+
     //Second, check whether the ground tile is walkable at the player_destination.
     let map_pos = transform_pos_to_map_pos(&player_destination);
     let tile_info = map.get_tileinfo_at(map_pos.x as usize, map_pos.y as usize);
     map_terrain_movement_legal = tile_info.walkable;
 
-    screen_movement_legal || map_terrain_movement_legal
+    println!("Destination tile at {}/{} is {}", map_pos.x, map_pos.y, tile_info.tile_type);
+
+    println!("Legal screen = {}, Legal map = {}", screen_movement_legal, map_terrain_movement_legal);
+
+    (screen_movement_legal, map_terrain_movement_legal)
 }
