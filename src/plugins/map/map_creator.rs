@@ -254,21 +254,21 @@ impl Map {
 
     fn biome(&self, map_elevation: f32) -> TileType {
         if map_elevation < 0.1 {
-            return TileType::DeepWater;
+            TileType::DeepWater
         } else if map_elevation < 0.2 {
-            return TileType::Shore;
+            TileType::Shore
         } else if map_elevation < 0.3 {
-            return TileType::Grass;
+            TileType::Grass
         } else if map_elevation < 0.5 {
-            return TileType::Forest;
+            TileType::Forest
         } else if map_elevation < 0.8 {
-            return TileType::Savannah;
+            TileType::Savannah
         } else if map_elevation < 0.9 {
-            return TileType::Sand;
+            TileType::Sand
         } else if map_elevation < 0.95 {
-            return TileType::Rock;
+            TileType::Rock
         } else {
-            return TileType::Mountain;
+            TileType::Mountain
         }
     }
 
