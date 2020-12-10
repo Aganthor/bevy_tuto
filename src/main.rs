@@ -1,7 +1,4 @@
-use bevy::{render::camera::{
-    OrthographicProjection, WindowOrigin}, 
-    prelude::*
-};
+use bevy::prelude::*;
 
 mod player;
 use player::*;
@@ -33,12 +30,5 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    // commands.spawn(Camera2dBundle {
-    //     orthographic_projection: OrthographicProjection {
-    //         window_origin: WindowOrigin::BottomLeft,
-    //         ..Default::default()
-    //     },
-    //     ..Default::default()
-    // });
     spawn_player(commands, &asset_server, &mut materials);
 }
