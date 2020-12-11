@@ -1,7 +1,11 @@
-use bevy::{input::{ElementState, mouse::{MouseButtonInput}}, prelude::*, render::camera::{OrthographicProjection, WindowOrigin}};
+use bevy::{
+    input::{mouse::MouseButtonInput, ElementState},
+    prelude::*,
+    render::camera::{OrthographicProjection, WindowOrigin},
+};
 
-use crate::plugins::map::map_creator::TILE_SIZE;
 use crate::plugins::map::map_creator::Map;
+use crate::plugins::map::map_creator::TILE_SIZE;
 
 pub enum Direction {
     Left,
@@ -29,11 +33,12 @@ pub fn spawn_player(
     materials: &mut ResMut<Assets<ColorMaterial>>,
 ) {
     let camera = Camera2dBundle {
-            orthographic_projection: OrthographicProjection {
-                window_origin: WindowOrigin::BottomLeft,
-                ..Default::default()
-            },
-            ..Default::default()};
+        orthographic_projection: OrthographicProjection {
+            window_origin: WindowOrigin::BottomLeft,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
 
     let e = commands.spawn(camera).current_entity().unwrap();
     commands.insert_resource(CursorState {
@@ -47,9 +52,10 @@ pub fn spawn_player(
         .spawn(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform: Transform::from_translation(Vec3::new(
-                TILE_SIZE as f32 / 2.0, 
-                TILE_SIZE as f32 / 2.0, 
-                5.0)),
+                TILE_SIZE as f32 / 2.0,
+                TILE_SIZE as f32 / 2.0,
+                5.0,
+            )),
             ..Default::default()
         })
         .with(Player {
@@ -73,11 +79,10 @@ pub fn mouse_movement_updating_system(
 pub fn get_tile_info_system(
     ev_button: Res<Events<MouseButtonInput>>,
     map: Res<Map>,
-    mouse_pos: Res<MouseLocation>,    
+    mouse_pos: Res<MouseLocation>,
     mut state: ResMut<CursorState>,
 ) {
-    for event in state.button.iter(&ev_button)
-    {
+    for event in state.button.iter(&ev_button) {
         if event.state == ElementState::Pressed {
             let tile_info = map.get_tileinfo_at(mouse_pos.0.x as usize, mouse_pos.0.y as usize);
             println!("The player is standing on {}", tile_info.tile_type);
@@ -89,7 +94,7 @@ fn transform_pos_to_map_pos(position: &Vec3) -> Vec3 {
     let map_pos = Vec3::new(
         (position.x / TILE_SIZE as f32).floor(),
         (position.y / TILE_SIZE as f32).floor(),
-        5.0
+        5.0,
     );
     map_pos
 }
@@ -108,46 +113,38 @@ pub fn player_movement_system(
             player.direction = Direction::Left;
             player_destination.x = translation.x + player.speed * -1.0;
             player_destination.y = translation.y;
-        }
-        else if keyboard_input.just_pressed(KeyCode::Right) {
+        } else if keyboard_input.just_pressed(KeyCode::Right) {
             player.direction = Direction::Right;
             player_destination.x = translation.x + player.speed * 1.0;
             player_destination.y = translation.y;
-        }
-        else if keyboard_input.just_pressed(KeyCode::Up) {
+        } else if keyboard_input.just_pressed(KeyCode::Up) {
             player.direction = Direction::Up;
             player_destination.x = translation.x;
             player_destination.y = translation.y + player.speed * 1.0;
-        }
-        else if keyboard_input.just_pressed(KeyCode::Down) {
+        } else if keyboard_input.just_pressed(KeyCode::Down) {
             player.direction = Direction::Down;
             player_destination.x = translation.x;
             player_destination.y = translation.y + player.speed * -1.0;
-        }
-        else {
+        } else {
             player.direction = Direction::Idle;
             return;
         }
 
         let active_window = windows.get_primary().unwrap();
 
-        let movement: (bool, bool) = validate_movement(
-            &player_destination, 
-            &player.direction, 
-            &map, 
-            &active_window);
+        let movement: (bool, bool) =
+            validate_movement(&player_destination, &player.direction, &map, &active_window);
         if movement.0 {
             if movement.1 {
                 //Movement is legal, proceed.
                 translation.x = player_destination.x;
                 translation.y = player_destination.y;
-            }
-            else {
+            } else {
                 println!("Movement was illegal...");
                 return;
             }
         } else {
-            println!("Movement was illegal...");            
+            println!("Movement was illegal...");
             return;
         }
     }
@@ -155,7 +152,7 @@ pub fn player_movement_system(
 
 fn validate_movement(
     player_destination: &Vec3,
-    direction: &Direction, 
+    direction: &Direction,
     map: &Res<Map>,
     window: &Window,
 ) -> (bool, bool) {
@@ -182,7 +179,7 @@ fn validate_movement(
             }
         }
         Direction::Down => {
-            if player_destination.y > 0.0 {    
+            if player_destination.y > 0.0 {
                 screen_movement_legal = true;
             }
         }
