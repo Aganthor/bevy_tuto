@@ -353,5 +353,5 @@ pub fn scroll_map_system(
     cursor_state: Res<CursorState>,
 ) {
     let camera_entity = cursor_state.camera_e;
-    
+    //TODO: make the player movement system send a message to scroll the map.
 }
