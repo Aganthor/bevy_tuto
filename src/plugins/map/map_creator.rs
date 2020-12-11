@@ -9,6 +9,7 @@ use simdnoise::*;
 use std::collections::HashMap;
 use std::fmt;
 use super::map_plugin::MapSpriteHandles;
+use crate::player::CursorState;
 
 pub const TILE_SIZE: u32 = 32;
 const MAP_SIZE_X: u32 = 32;
@@ -346,4 +347,11 @@ pub fn render_map(
 
         map_sprite_handles.atlas_loaded = true;
     }
+}
+
+pub fn scroll_map_system(
+    cursor_state: Res<CursorState>,
+) {
+    let camera_entity = cursor_state.camera_e;
+    
 }
