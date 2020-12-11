@@ -21,9 +21,9 @@ pub struct Player {
 }
 
 pub struct CursorState {
-    cursor: EventReader<CursorMoved>,
-    button: EventReader<MouseButtonInput>,
-    camera_e: Entity,
+    pub cursor: EventReader<CursorMoved>,
+    pub button: EventReader<MouseButtonInput>,
+    pub camera_e: Entity,
 }
 pub struct MouseLocation(Vec2);
 
