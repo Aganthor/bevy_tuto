@@ -3,11 +3,15 @@ use bevy::prelude::*;
 mod player;
 use player::*;
 
+mod events;
+use events::GameEvent;
+
 mod plugins;
 use crate::plugins::map::*;
 
 fn main() {
     App::build()
+        .add_event::<GameEvent>()
         .add_resource(WindowDescriptor {
             title: "Void destiny - the roguelike game".to_string(),
             width: 1024,
