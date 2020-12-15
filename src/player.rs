@@ -85,7 +85,7 @@ pub fn get_tile_info_system(
     for event in state.button.iter(&ev_button) {
         if event.state == ElementState::Pressed {
             let tile_info = map.get_tileinfo_at(mouse_pos.0.x as usize, mouse_pos.0.y as usize);
-            println!("The player is standing on {}", tile_info.tile_type);
+            println!("The terrain type is {}", tile_info.tile_type);
         }
     }
 }
