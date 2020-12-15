@@ -91,12 +91,11 @@ pub fn get_tile_info_system(
 }
 
 fn transform_pos_to_map_pos(position: &Vec3) -> Vec3 {
-    let map_pos = Vec3::new(
+    Vec3::new(
         (position.x / TILE_SIZE as f32).floor(),
         (position.y / TILE_SIZE as f32).floor(),
         5.0,
-    );
-    map_pos
+    )
 }
 
 pub fn player_movement_system(
