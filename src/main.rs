@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowMode};
 
 mod player;
 use player::*;
@@ -17,12 +17,14 @@ fn main() {
             width: 1024,
             height: 768,
             vsync: true,
+            mode: WindowMode::BorderlessFullscreen,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(map_plugin::MapPlugin)
         .add_startup_system(setup)
         .add_system(bevy::input::system::exit_on_esc_system.system())
+        .add_system(main_input_system)
         .add_system(player_movement_system)
         .add_system(mouse_movement_updating_system)
         .add_system(get_tile_info_system)
@@ -35,4 +37,19 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     spawn_player(commands, &asset_server, &mut materials);
+}
+
+fn main_input_system(
+    keyboard_input: Res<Input<KeyCode>>,
+    windows: ResMut<Windows>,
+) {  
+    if keyboard_input.just_pressed(KeyCode::F) {
+        let window = windows.get_primary().unwrap();
+        let mode = window.mode();
+        match mode {
+            WindowMode::BorderlessFullscreen => window.set_mode(WindowMode::Windowed),
+            WindowMode::Windowed => window.set_mode(WindowMode::BorderlessFullscreen),
+            _ => return
+        }
+    }
 }
