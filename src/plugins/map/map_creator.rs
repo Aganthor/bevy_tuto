@@ -12,8 +12,10 @@ use super::map_plugin::MapSpriteHandles;
 use crate::player::CursorState;
 
 pub const TILE_SIZE: u32 = 32;
-const MAP_SIZE_X: u32 = 32;
-const MAP_SIZE_Y: u32 = 24;
+const MAP_SIZE_X: u32 = 32 * 2;
+const MAP_SIZE_Y: u32 = 24 * 2;
+const SCREEN_MAP_SIZE_X_MAX: u32 = 32;
+const SCREEN_MAP_SIZE_Y_MAX: u32 = 24;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub enum TileType {
@@ -56,29 +58,18 @@ pub struct TileData {
 impl Default for TileData {
     fn default() -> Self {
         let mut tile_data_map: HashMap<TileType, String> = HashMap::new();
-        tile_data_map.insert(
-            TileType::DeepWater,
-            "map_tiles/deep_water.png".to_string(),
-        );
+        tile_data_map.insert(TileType::DeepWater, "map_tiles/deep_water.png".to_string());
         tile_data_map.insert(TileType::Dirt, "map_tiles/dirt.png".to_string());
         tile_data_map.insert(TileType::Grass, "map_tiles/grass.png".to_string());
         tile_data_map.insert(TileType::Forest, "map_tiles/forest.png".to_string());
         tile_data_map.insert(TileType::Rock, "map_tiles/rock.png".to_string());
         tile_data_map.insert(TileType::Sand, "map_tiles/sand.png".to_string());
-        tile_data_map.insert(
-            TileType::Savannah,
-            "map_tiles/savannah.png".to_string(),
-        );
-        tile_data_map.insert(
-            TileType::ShallowWater,
-            "map_tiles/shallow_water.png".to_string(),
-        );
+        tile_data_map.insert(TileType::Savannah, "map_tiles/savannah.png".to_string());
+        tile_data_map.insert(TileType::ShallowWater, "map_tiles/shallow_water.png".to_string());
         tile_data_map.insert(TileType::Shore, "map_tiles/shore.png".to_string());
         tile_data_map.insert(TileType::Snow, "map_tiles/snow.png".to_string());
-        tile_data_map.insert(
-            TileType::Mountain,
-            "map_tiles/mountain.png".to_string(),
-        );
+        tile_data_map.insert(TileType::Mountain, "map_tiles/mountain.png".to_string());
+
         TileData {
             tile_data: tile_data_map,
         }
