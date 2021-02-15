@@ -158,7 +158,7 @@ fn validate_movement(
     let mut screen_movement_legal = false;
     let mut map_terrain_movement_legal = false;
 
-    //First, check if the player wants to move outside the game screen.
+    // First, check if the player wants to move outside the game screen.
     match direction {
         Direction::Left => {
             if player_destination.x < 0.0 {
@@ -189,10 +189,13 @@ fn validate_movement(
         return (false, false);
     }
 
-    //Second, check whether the ground tile is walkable at the player_destination.
+    // Second, check whether the ground tile is walkable at the player_destination.
     let map_pos = transform_pos_to_map_pos(&player_destination);
     let tile_info = map.get_tileinfo_at(map_pos.x as usize, map_pos.y as usize);
     map_terrain_movement_legal = tile_info.walkable;
+
+    // Thirdly, check if the next step is outside the map. If so, send an event 
+    // so that the map scroll in this direction
 
     (screen_movement_legal, map_terrain_movement_legal)
 }
