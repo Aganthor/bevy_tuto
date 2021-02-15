@@ -41,10 +41,10 @@ fn setup(
 
 fn main_input_system(
     keyboard_input: Res<Input<KeyCode>>,
-    windows: ResMut<Windows>,
+    mut windows: ResMut<Windows>,
 ) {  
     if keyboard_input.just_pressed(KeyCode::F) {
-        let window = windows.get_primary().unwrap();
+        let window = windows.get_primary_mut().unwrap();
         let mode = window.mode();
         match mode {
             WindowMode::BorderlessFullscreen => window.set_mode(WindowMode::Windowed),
