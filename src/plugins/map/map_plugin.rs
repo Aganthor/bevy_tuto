@@ -16,8 +16,8 @@ impl Plugin for MapPlugin {
         app.init_resource::<MapSpriteHandles>()
             .init_resource::<Map>()
             .init_resource::<TileData>()
-            .add_startup_system(load_sprites)
-            .add_system(render_map);
+            .add_startup_system(load_sprites.system())
+            .add_system(render_map.system());
     }
 }
 
