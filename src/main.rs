@@ -12,7 +12,7 @@ use crate::plugins::map::*;
 fn main() {
     App::build()
         .add_event::<GameEvent>()
-        .add_resource(WindowDescriptor {
+        .insert_resource(WindowDescriptor {
             title: "Void destiny - the roguelike game".to_string(),
             width: 1024 as f32,
             height: 768 as f32,
@@ -32,7 +32,7 @@ fn main() {
 }
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {

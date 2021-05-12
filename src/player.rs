@@ -3,6 +3,8 @@ use bevy::{
     prelude::*,
     render::camera::{OrthographicProjection, WindowOrigin},
 };
+use bevy::app::Events;
+
 
 use crate::plugins::map::map_creator::Map;
 use crate::plugins::map::map_creator::TILE_SIZE;
@@ -20,36 +22,34 @@ pub struct Player {
     pub direction: Direction,
 }
 
-pub struct CursorState {
-    pub cursor: EventReader<CursorMoved>,
-    pub button: EventReader<MouseButtonInput>,
-    pub camera_e: Entity,
-}
+// pub struct CursorState {
+//     /*
+//     https://bevy-cheatbook.github.io/cookbook/cursor2world.html
+//     https://discord.com/channels/691052431525675048/692648082499829760/835750090366255154
+//     */
+//     pub cursor: EventReader<CursorMoved>,
+//     pub button: EventReader<MouseButtonInput>,
+//     pub camera_e: Entity,
+// }
 pub struct MouseLocation(Vec2);
 
 pub fn spawn_player(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: &Res<AssetServer>,
     materials: &mut ResMut<Assets<ColorMaterial>>,
 ) {
-    let camera = Camera2dBundle {
-        orthographic_projection: OrthographicProjection {
-            window_origin: WindowOrigin::BottomLeft,
-            ..Default::default()
-        },
-        ..Default::default()
-    };
-
-    let e = commands.spawn(camera).current_entity().unwrap();
-    commands.insert_resource(CursorState {
-        cursor: Default::default(),
-        button: Default::default(),
-        camera_e: e,
-    });
+    let mut camera = OrthographicCameraBundle::new_2d();
+    camera.transform = Transform::from_translation(Vec3::new(0.0, 0.0, 5.0));
+    let e = commands.spawn_bundle(camera).id();
+    // commands.insert_resource(CursorState {
+    //     cursor: Events::<CursorMoved>::default(),
+    //     button: Events::<MouseButtonInput>::default(),
+    //     camera_e: e,
+    // });
 
     let texture_handle = asset_server.load("unseen_horror_new.png");
     commands
-        .spawn(SpriteBundle {
+        .spawn_bundle(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform: Transform::from_translation(Vec3::new(
                 TILE_SIZE as f32 / 2.0,
@@ -58,7 +58,7 @@ pub fn spawn_player(
             )),
             ..Default::default()
         })
-        .with(Player {
+        .insert(Player {
             speed: TILE_SIZE as f32,
             direction: Direction::Idle,
         });
@@ -71,7 +71,7 @@ pub fn mouse_movement_updating_system(
     mut state: ResMut<CursorState>,
     cursor_moved_events: Res<Events<CursorMoved>>,
 ) {
-    for event in state.cursor.iter(&cursor_moved_events) {
+    for event in state.cursor.iter() {
         mouse_pos.0 = transform_pos_to_map_pos(&event.position.extend(5.0)).truncate();
     }
 }
@@ -82,7 +82,7 @@ pub fn get_tile_info_system(
     mouse_pos: Res<MouseLocation>,
     mut state: ResMut<CursorState>,
 ) {
-    for event in state.button.iter(&ev_button) {
+    for event in state.button.iter() {
         if event.state == ElementState::Pressed {
             let tile_info = map.get_tileinfo_at(mouse_pos.0.x as usize, mouse_pos.0.y as usize);
             info!("The terrain type is {}", tile_info.tile_type);
@@ -106,7 +106,7 @@ pub fn player_movement_system(
 ) {
     for (mut player, mut transform) in query.iter_mut() {
         let translation = &mut transform.translation;
-        let mut player_destination: Vec3 = Vec2::zero().extend(5.0);
+        let mut player_destination: Vec3 = Vec2::ZERO.extend(5.0);
 
         if keyboard_input.just_pressed(KeyCode::Left) {
             player.direction = Direction::Left;

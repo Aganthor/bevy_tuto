@@ -291,7 +291,7 @@ impl Map {
 // System used to render the map.
 //
 pub fn render_map(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut map_sprite_handles: ResMut<MapSpriteHandles>,
     asset_server: Res<AssetServer>,
     map: Res<Map>,
@@ -328,7 +328,7 @@ pub fn render_map(
                 let handle: Handle<Texture> = asset_server.get_handle(&*tile_data.get_path(tile_info.tile_type));
 
                 commands
-                    .spawn(SpriteBundle {
+                    .spawn_bundle(SpriteBundle {
                         transform: transform,
                         material: materials.add(handle.into()),
                         ..Default::default()
