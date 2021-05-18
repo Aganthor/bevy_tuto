@@ -26,8 +26,8 @@ fn main() {
         .add_system(bevy::input::system::exit_on_esc_system.system())
         .add_system(main_input_system.system())
         .add_system(player_movement_system.system())
-        .add_system(mouse_movement_updating_system.system())
-        .add_system(get_tile_info_system.system())
+        // .add_system(mouse_movement_updating_system.system())
+        // .add_system(get_tile_info_system.system())
         .run();
 }
 

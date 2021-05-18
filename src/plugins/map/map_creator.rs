@@ -3,13 +3,14 @@ use bevy::{
     asset::{LoadState},
     sprite::TextureAtlasBuilder
 };
+use bevy_tilemap::prelude::*;
 use bmp::Image;
 use rand::Rng;
 use simdnoise::*;
 use std::collections::HashMap;
 use std::fmt;
-use super::map_plugin::MapSpriteHandles;
-use crate::player::CursorState;
+use super::map_plugin::{MapState, TileSpriteHandles};
+// use crate::player::CursorState;
 
 pub const TILE_SIZE: u32 = 32;
 const MAP_SIZE_X: u32 = 32 * 2;
@@ -292,7 +293,7 @@ impl Map {
 //
 pub fn render_map(
     mut commands: Commands,
-    mut map_sprite_handles: ResMut<MapSpriteHandles>,
+    mut map_sprite_handles: ResMut<TileSpriteHandles>,
     asset_server: Res<AssetServer>,
     map: Res<Map>,
     tile_data: Res<TileData>,
@@ -340,9 +341,19 @@ pub fn render_map(
     }
 }
 
-pub fn scroll_map_system(
-    cursor_state: Res<CursorState>,
+// pub fn scroll_map_system(
+//     cursor_state: Res<CursorState>,
+// ) {
+//     let camera_entity = cursor_state.camera_e;
+//     //TODO: make the player movement system send a message to scroll the map.
+// }
+
+pub fn generate_random_world(
+    mut commands: Commands,
+    mut map_state: ResMut<MapState>,
+    texture_atlases: Res<Assets<TextureAtlas>>,
+    asset_server: Res<AssetServer>,
+    mut query: Query<&mut Tilemap>,
 ) {
-    let camera_entity = cursor_state.camera_e;
-    //TODO: make the player movement system send a message to scroll the map.
+
 }

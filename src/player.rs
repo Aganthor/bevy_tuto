@@ -66,37 +66,37 @@ pub fn spawn_player(
     commands.insert_resource(MouseLocation(Vec2::new(0.0, 0.0)));
 }
 
-pub fn mouse_movement_updating_system(
-    mut mouse_pos: ResMut<MouseLocation>,
-    mut state: ResMut<CursorState>,
-    cursor_moved_events: Res<Events<CursorMoved>>,
-) {
-    for event in state.cursor.iter() {
-        mouse_pos.0 = transform_pos_to_map_pos(&event.position.extend(5.0)).truncate();
-    }
-}
+// pub fn mouse_movement_updating_system(
+//     mut mouse_pos: ResMut<MouseLocation>,
+//     mut state: ResMut<CursorState>,
+//     cursor_moved_events: Res<Events<CursorMoved>>,
+// ) {
+//     for event in state.cursor.iter() {
+//         mouse_pos.0 = transform_pos_to_map_pos(&event.position.extend(5.0)).truncate();
+//     }
+// }
 
-pub fn get_tile_info_system(
-    ev_button: Res<Events<MouseButtonInput>>,
-    map: Res<Map>,
-    mouse_pos: Res<MouseLocation>,
-    mut state: ResMut<CursorState>,
-) {
-    for event in state.button.iter() {
-        if event.state == ElementState::Pressed {
-            let tile_info = map.get_tileinfo_at(mouse_pos.0.x as usize, mouse_pos.0.y as usize);
-            info!("The terrain type is {}", tile_info.tile_type);
-        }
-    }
-}
+// pub fn get_tile_info_system(
+//     ev_button: Res<Events<MouseButtonInput>>,
+//     map: Res<Map>,
+//     mouse_pos: Res<MouseLocation>,
+//     mut state: ResMut<CursorState>,
+// ) {
+//     for event in state.button.iter() {
+//         if event.state == ElementState::Pressed {
+//             let tile_info = map.get_tileinfo_at(mouse_pos.0.x as usize, mouse_pos.0.y as usize);
+//             info!("The terrain type is {}", tile_info.tile_type);
+//         }
+//     }
+// }
 
-fn transform_pos_to_map_pos(position: &Vec3) -> Vec3 {
-    Vec3::new(
-        (position.x / TILE_SIZE as f32).floor(),
-        (position.y / TILE_SIZE as f32).floor(),
-        5.0,
-    )
-}
+// fn transform_pos_to_map_pos(position: &Vec3) -> Vec3 {
+//     Vec3::new(
+//         (position.x / TILE_SIZE as f32).floor(),
+//         (position.y / TILE_SIZE as f32).floor(),
+//         5.0,
+//     )
+// }
 
 pub fn player_movement_system(
     keyboard_input: Res<Input<KeyCode>>,
@@ -190,9 +190,9 @@ fn validate_movement(
     }
 
     // Second, check whether the ground tile is walkable at the player_destination.
-    let map_pos = transform_pos_to_map_pos(&player_destination);
-    let tile_info = map.get_tileinfo_at(map_pos.x as usize, map_pos.y as usize);
-    map_terrain_movement_legal = tile_info.walkable;
+    // let map_pos = transform_pos_to_map_pos(&player_destination);
+    // let tile_info = map.get_tileinfo_at(map_pos.x as usize, map_pos.y as usize);
+    // map_terrain_movement_legal = tile_info.walkable;
 
     // Thirdly, check if the next step is outside the map. If so, send an event 
     // so that the map scroll in this direction
