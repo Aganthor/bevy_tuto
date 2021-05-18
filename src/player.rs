@@ -40,12 +40,7 @@ pub fn spawn_player(
 ) {
     let mut camera = OrthographicCameraBundle::new_2d();
     camera.transform = Transform::from_translation(Vec3::new(0.0, 0.0, 5.0));
-    let e = commands.spawn_bundle(camera).id();
-    // commands.insert_resource(CursorState {
-    //     cursor: Events::<CursorMoved>::default(),
-    //     button: Events::<MouseButtonInput>::default(),
-    //     camera_e: e,
-    // });
+    commands.spawn_bundle(camera);
 
     let texture_handle = asset_server.load("unseen_horror_new.png");
     commands
